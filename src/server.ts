@@ -1,23 +1,34 @@
 import { TestServer, TestServerMethods } from '@test-ui/core';
+import { Locator, QUnitModuleDetails, getAllModuleData } from 'qunit-metadata';
 import './index';
 
-export interface QUnitIsh {
-  start(): void;
+export interface StartQUnitTestOptions {
+  filter: {
+    module: Locator<QUnitModuleDetails>;
+  };
 }
 
-export default class QUnitTestServer extends TestServer {
-  constructor(private QUnit: QUnitIsh) {
+export interface ServerMethods extends TestServerMethods {
+  startTests(opts?: TestServerMethods): void;
+}
+
+export default class QUnitTestServer extends TestServer<ServerMethods> {
+  constructor(private QUnit: QUnit) {
     super();
-    console.log('setting up qunit server');
   }
   protected async setupMethods(): Promise<TestServerMethods> {
     const { QUnit } = this;
-    this.readyDeferred.resolve();
     return {
-      startTests() {
+      startTests(opts?: StartQUnitTestOptions) {
+        let moduleIds: string[] | null = null;
+        if (opts && opts.filter && opts.filter.module) {
+          moduleIds = getAllModuleData(opts.filter.module).map(m => m.moduleId);
+        }
+        if (moduleIds) {
+          console.log('moduleIds', moduleIds);
+        }
         QUnit.start();
       }
     };
   }
-
 }
