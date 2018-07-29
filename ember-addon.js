@@ -3,7 +3,7 @@
 const path = require('path');
 
 module.exports = {
-  name: '@test-ui/qunit-client',
+  name: '@test-ui/qunit',
 
   setupPreprocessorRegistry(type, registry) {
     if (type === 'self') {
