@@ -1,6 +1,6 @@
 {
   "name": "@test-ui/qunit",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "QUnit support for test-ui",
   "author": "Mike North <michael.l.north@gmail.com> (https://mike.north)",
   "main": "dist/commonjs/src/index.js",
@@ -36,7 +36,7 @@
     "typescript": "^2.4.2"
   },
   "dependencies": {
-    "@test-ui/core": "^0.0.6",
+    "@test-ui/core": "0.0.6",
     "qunit": "^2.4.1",
     "qunit-metadata": "^1.2.5"
   },

@@ -1,4 +1,4 @@
-import { TestServer, TestServerMethods } from '@test-ui/core';
+import { TestServer, TestServerMethods as BaseServerMethods } from '@test-ui/core';
 import { Locator, QUnitModuleDetails, getAllModuleData } from 'qunit-metadata';
 import './index';
 
@@ -8,15 +8,15 @@ export interface StartQUnitTestOptions {
   };
 }
 
-export interface ServerMethods extends TestServerMethods {
-  startTests(opts?: TestServerMethods): void;
+export interface ServerMethods extends BaseServerMethods {
+  startTests(opts?: StartQUnitTestOptions): void;
 }
 
 export default class QUnitTestServer extends TestServer<ServerMethods> {
   constructor(private QUnit: QUnit) {
     super();
   }
-  protected async setupMethods(): Promise<TestServerMethods> {
+  protected async setupMethods(): Promise<ServerMethods> {
     const { QUnit } = this;
     return {
       startTests(opts?: StartQUnitTestOptions) {
