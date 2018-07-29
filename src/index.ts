@@ -1,6 +1,7 @@
 import { setupTestIndicators } from './config';
 
 function setup() {
+  console.log('setting up qunit');
   setupTestIndicators();
 }
 setup();

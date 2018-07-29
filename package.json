@@ -36,8 +36,8 @@
     "typescript": "^2.4.2"
   },
   "dependencies": {
-    "qunit": "^2.4.1",
-    "@test-ui/core": "*"
+    "@test-ui/core": "0.0.2",
+    "qunit": "^2.4.1"
   },
   "plublishConfig": {
     "access": "public",
