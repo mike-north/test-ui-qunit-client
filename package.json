@@ -1,6 +1,6 @@
 {
   "name": "@test-ui/qunit",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "QUnit support for test-ui",
   "author": "Mike North <michael.l.north@gmail.com> (https://mike.north)",
   "main": "dist/commonjs/src/index.js",
@@ -20,20 +20,24 @@
     "build-tests": "ember build",
     "pretest": "npm run problems",
     "test": "ember test",
-    "tdd": "ember test --server"
+    "tdd": "ember test --server",
+    "travis-deploy-once": "travis-deploy-once",
+    "semantic-release": "semantic-release"
   },
   "license": "MIT",
   "devDependencies": {
     "@types/qunit": "^2.0.31",
     "ember-cli": "^3.1.4",
     "libkit": "^0.6.0",
+    "semantic-release": "^15.8.1",
     "shelljs": "^0.7.8",
+    "travis-deploy-once": "^5.0.1",
     "tslint": "^5.7.0",
     "typescript": "^2.4.2"
   },
   "dependencies": {
     "qunit": "^2.4.1",
-    "@test-ui/client": "*"
+    "@test-ui/core": "*"
   },
   "plublishConfig": {
     "access": "public",
