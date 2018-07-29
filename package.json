@@ -1,7 +1,8 @@
 {
-  "name": "test-ui-qunit-client",
-  "version": "0.5.0",
-  "description": "A brand new TypeScript library.",
+  "name": "@test-ui/qunit-client",
+  "version": "0.0.1",
+  "description": "QUnit client for test-ui",
+  "author": "Mike North <michael.l.north@gmail.com> (https://mike.north)",
   "main": "dist/commonjs/src/index.js",
   "module": "dist/modules/src/index.js",
   "types": "dist/types/src/index.d.ts",
