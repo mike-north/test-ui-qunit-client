@@ -1,6 +1,8 @@
 import { TestServer, TestServerMethods as BaseServerMethods } from '@test-ui/core';
 import { Locator, QUnitModuleDetails, getAllModuleData } from 'qunit-metadata';
 import './index';
+import patch from './qunit-patch';
+import isEmber from './is-ember';
 
 export interface StartQUnitTestOptions {
   filter: {
@@ -13,21 +15,32 @@ export interface ServerMethods extends BaseServerMethods {
 }
 
 export default class QUnitTestServer extends TestServer<ServerMethods> {
-  constructor(private QUnit: QUnit) {
+  constructor(private q: QUnit) {
     super();
+    patch(q);
   }
+
   protected async setupMethods(): Promise<ServerMethods> {
-    const { QUnit } = this;
+    const { q } = this;
     return {
       startTests(opts?: StartQUnitTestOptions) {
-        let moduleIds: string[] | null = null;
+        if (isEmber) {
+          const require = (window as any).require;
+          require('ember-qunit').start({ startTests: false});
+        }
+        let mods: QUnitModuleDetails[] = [];
         if (opts && opts.filter && opts.filter.module) {
-          moduleIds = getAllModuleData(opts.filter.module).map(m => m.moduleId);
+          mods = getAllModuleData(opts.filter.module);
         }
-        if (moduleIds) {
-          console.log('moduleIds', moduleIds);
+        if (mods && mods.length > 0) {
+          const testIds = mods
+            .map(m => m.tests)
+            .reduce((tlist, mtlist) => tlist.concat(mtlist[0]), [])
+            .map(t => t.testId);
+          QUnit.config.testId = testIds;
+          console.log('testIds', testIds);
         }
-        QUnit.start();
+        q.start();
       }
     };
   }
