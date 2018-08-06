@@ -1,8 +1,2 @@
-import { setupTestIndicators } from './config';
-
-function setup() {
-  setupTestIndicators();
-}
-setup();
-
-export { default as Server, ServerMethods } from './server';
+export { default as QUnitTestClient } from './client';
+export { default as QUnitTestServer } from './server';
