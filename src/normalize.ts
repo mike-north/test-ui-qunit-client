@@ -144,11 +144,16 @@ function suiteInfoToSuiteStart(
 }
 function suiteInfoToSuiteEnd(
   mod: PrivateQModInfo,
-  assertions: { [k: string]: QUnit.LogDetails[] }
+  assertions: { [k: string]: QUnit.LogDetails[] | undefined }
 ): JSReporters.SuiteEnd & { id?: string } {
-  const tests = mod.suiteReport.tests.map(rawTest =>
-    testReportToTestEnd(mod.moduleId, rawTest, assertions[rawTest.name])
-  );
+  const tests = mod.suiteReport.tests.map(rawTest => {
+    const rawTestAssertions = assertions[rawTest.name];
+    const testAssertions: QUnit.LogDetails[] =
+      typeof rawTestAssertions !== 'undefined'
+        ? rawTestAssertions
+        : ([] as QUnit.LogDetails[]);
+    return testReportToTestEnd(mod.moduleId, rawTest, testAssertions);
+  });
   const testCounts = tests.reduce(
     (ct, t) => {
       ct.total++;
@@ -303,11 +308,14 @@ export function normalizeRunEndEvent(
   qUnit: Pick<QUnit, 'config'>,
   evt: QUnit.DoneDetails,
   assertions: {
-    [k: string]: { [k: string]: QUnit.LogDetails[] };
+    [k: string]: { [k: string]: QUnit.LogDetails[] | undefined } | undefined;
   }
 ): RunEndEvent {
   const childSuites = serializableQunitModules(qUnit).map(m => {
-    return suiteInfoToSuiteEnd(m, assertions[m.name]);
+    const childAsserts: {
+      [k: string]: QUnit.LogDetails[] | undefined;
+    } = {};
+    return suiteInfoToSuiteEnd(m, childAsserts);
   });
   const testCounts = childSuites.reduce(
     (ct, t) => {
