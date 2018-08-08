@@ -107,9 +107,9 @@
   dependencies:
     symbol-observable "^1.2.0"
 
-"@test-ui/core@^1.0.0":
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/@test-ui/core/-/core-1.2.1.tgz#0bb47af99b000446bfc5e5a5f5b803e8e605d579"
+"@test-ui/core@^1.2.3":
+  version "1.2.3"
+  resolved "https://registry.yarnpkg.com/@test-ui/core/-/core-1.2.3.tgz#58b42eba2743a9aa0d2e590082d22ef879f10469"
   dependencies:
     "@mike-north/types" "^1.0.0"
     bite-log "^1.6.0"

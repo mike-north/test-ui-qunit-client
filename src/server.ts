@@ -1,4 +1,10 @@
-import { Server, State, StateReference, SuiteInfo } from '@test-ui/core';
+import {
+  Server,
+  State,
+  StateReference,
+  SuiteInfo,
+  SuitePredicate
+} from '@test-ui/core';
 import { PredicateObject, toPredicate } from 'object-predicate';
 import { QUnitModuleDetails, getAllModuleData } from 'qunit-metadata';
 import YouAreI from 'youarei';
@@ -71,12 +77,17 @@ function qUnitModuleToSuiteInfo(qm: Partial<QUnitModuleDetails>): SuiteInfo {
   return result;
 }
 
-function getSelectedTestIds(
-  qUnit: QUnit,
-  moduleFilter: (s: SuiteInfo) => boolean
-) {
+function getSelectedTestIds(qUnit: QUnit, moduleFilter: SuitePredicate) {
   const mods = getAllModuleData(
-    qmod => moduleFilter(qUnitModuleToSuiteInfo(qmod)),
+    qmod => {
+      const p: (s: SuiteInfo) => boolean = (typeof moduleFilter === 'function'
+        ? moduleFilter
+        : toPredicate(moduleFilter)) as any;
+      const pp: (m: Partial<QUnitModuleDetails>) => boolean = m => {
+        return p(qUnitModuleToSuiteInfo(qmod));
+      };
+      return pp(qmod);
+    },
     {
       QUnit: qUnit
     }
@@ -167,7 +178,6 @@ class QUnitTestServer extends Server {
       [k: string]: { [k: string]: QUnit.LogDetails[] };
     } = {};
     this.qUnit.done(details => {
-      // TODO: assertions
       conn.sendTestData(
         normalizeRunEndEvent(this.qUnit, details, assertionCache)
       );
@@ -181,7 +191,6 @@ class QUnitTestServer extends Server {
       conn.sendTestData(normalizeSuiteStartEvent(this.qUnit, details));
     });
     this.qUnit.moduleDone(details => {
-      // TODO: assertions
       conn.sendTestData(
         normalizeSuiteEndEvent(
           this.qUnit,
@@ -195,7 +204,6 @@ class QUnitTestServer extends Server {
       conn.sendTestData(normalizeTestStartEvent(this.qUnit, details));
     });
     this.qUnit.testDone(details => {
-      // TODO: assertions
       conn.sendTestData(
         normalizeTestEndEvent(
           this.qUnit,
