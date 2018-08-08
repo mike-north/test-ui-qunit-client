@@ -199,7 +199,7 @@ function serializableQunitModules(
 function moduleInfoByName(
   qUnit: Pick<QUnit, 'config'>,
   name: string
-): PrivateQModInfo {
+): PrivateQModInfo[] {
   const mods = serializableQunitModules(qUnit);
   const matches = mods.filter(m => m.name === name);
   if (matches.length === 0) {
@@ -209,33 +209,36 @@ function moduleInfoByName(
         .join(', ')})`
     );
   }
-  return matches[0];
+  return matches;
 }
 
 function testReportByName(
   qUnit: Pick<QUnit, 'config'>,
-  mod: PrivateQModInfo,
+  mods: PrivateQModInfo[],
   name: string
-): PrivateQTestReport {
-  const matches = mod.suiteReport.tests.filter(t => t.name === name);
+): PrivateQTestReport[] {
+  const allTests = mods
+    .map(m => m.suiteReport.tests)
+    .reduce((a, ma) => a.concat(ma), []);
+  const matches = allTests.filter(t => t.name === name);
   if (matches.length === 0) {
     throw new Error(
-      `Test "${name}" mentioned in event, but not found in QUnit module state.\nOnly found (${mod.suiteReport.tests
+      `Test "${name}" mentioned in event, but not found in QUnit module state.\nOnly found (${allTests
         .map(t => t.name)
         .join(', ')})`
     );
   }
-  return matches[0];
+  return matches;
 }
 
 export function normalizeSuiteStartEvent(
   qUnit: Pick<QUnit, 'config'>,
   evt: QUnit.ModuleStartDetails
 ): SuiteStartEvent {
-  const mod = moduleInfoByName(qUnit, evt.name);
+  const mods = moduleInfoByName(qUnit, evt.name);
   return {
     event: 'suiteStart',
-    data: suiteInfoToSuiteStart(mod)
+    data: suiteInfoToSuiteStart(mods[0])
   };
 }
 
@@ -244,10 +247,10 @@ export function normalizeSuiteEndEvent(
   evt: QUnit.ModuleDoneDetails,
   assertions: { [k: string]: QUnit.LogDetails[] }
 ): SuiteEndEvent {
-  const mod = moduleInfoByName(qUnit, evt.name);
+  const mods = moduleInfoByName(qUnit, evt.name);
   return {
     event: 'suiteEnd',
-    data: suiteInfoToSuiteEnd(mod, assertions)
+    data: suiteInfoToSuiteEnd(mods[0], assertions) // TODO handle duplicate moudle name case
   };
 }
 
@@ -255,11 +258,11 @@ export function normalizeTestStartEvent(
   qUnit: Pick<QUnit, 'config'>,
   evt: QUnit.TestStartDetails
 ): TestStartEvent {
-  const mod = moduleInfoByName(qUnit, evt.module);
-  const tst = testReportByName(qUnit, mod, evt.name);
+  const mods = moduleInfoByName(qUnit, evt.module);
+  const tsts = testReportByName(qUnit, mods, evt.name);
   return {
     event: 'testStart',
-    data: testReportToTestStart(mod.name, tst)
+    data: testReportToTestStart(mods[0].name, tsts[0])
   };
 }
 
@@ -268,11 +271,11 @@ export function normalizeTestEndEvent(
   evt: QUnit.TestDoneDetails,
   assertions: QUnit.LogDetails[]
 ): TestEndEvent {
-  const mod = moduleInfoByName(qUnit, evt.module);
-  const tst = testReportByName(qUnit, mod, evt.name);
+  const mods = moduleInfoByName(qUnit, evt.module);
+  const tsts = testReportByName(qUnit, mods, evt.name);
   return {
     event: 'testEnd',
-    data: testReportToTestEnd(mod.name, tst, assertions)
+    data: testReportToTestEnd(mods[0].name, tsts[0], assertions) // TODO handle duplicate moudle name case
   };
 }
 
