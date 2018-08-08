@@ -134,7 +134,7 @@ class QUnitTestServer extends Server {
     this.log.white.bgDeepSkyBlue.pushPrefix('prepareImpl');
     this.log.debug('begin');
     const { data: moduleFilter } = state;
-    if (!moduleFilter) {
+    if (typeof moduleFilter === 'undefined') {
       // There is no filter, run all tests
       this.runAllTests();
       return { ready: true }; // GO
