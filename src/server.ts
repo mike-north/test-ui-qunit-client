@@ -208,7 +208,7 @@ class QUnitTestServer extends Server {
         normalizeTestEndEvent(
           this.qUnit,
           details,
-          assertionCache[details.name][details.name]
+          assertionCache[details.module][details.name]
         )
       );
     });
