@@ -1,6 +1,6 @@
 {
   "name": "@test-ui/qunit",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "QUnit support for test-ui",
   "author": "Mike North <michael.l.north@gmail.com> (https://mike.north)",
   "main": "dist/commonjs/src/index.js",
