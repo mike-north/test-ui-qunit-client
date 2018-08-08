@@ -1,7 +1,15 @@
-import { Server, State, StateReference, TestModule } from '@test-ui/core';
-import { PredicateObject } from 'object-predicate';
-import { getAllModuleData } from 'qunit-metadata';
+import { Server, State, StateReference, SuiteInfo } from '@test-ui/core';
+import { PredicateObject, toPredicate } from 'object-predicate';
+import { QUnitModuleDetails, getAllModuleData } from 'qunit-metadata';
 import YouAreI from 'youarei';
+import {
+  normalizeRunEndEvent,
+  normalizeRunStartEvent,
+  normalizeSuiteEndEvent,
+  normalizeSuiteStartEvent,
+  normalizeTestEndEvent,
+  normalizeTestStartEvent
+} from './normalize';
 // tslint:disable-next-line:no-namespace
 namespace QUnitTestServer {
   export interface Options extends Server.Options {}
@@ -17,13 +25,6 @@ function arrayEq(a: string[], b: string[]) {
     }
   }
   return true;
-}
-
-function serializableQunitModules(qUnit: QUnit): any[] {
-  return (qUnit.config as any).modules.map((m: any) => ({
-    ...m,
-    ...{ hooks: null }
-  }));
 }
 
 function shouldReloadFrame(moduleTestIds: string[]): false | string {
@@ -51,11 +52,35 @@ function shouldReloadFrame(moduleTestIds: string[]): false | string {
   } else return false;
 }
 
+function qUnitModuleToSuiteInfo(qm: Partial<QUnitModuleDetails>): SuiteInfo {
+  const result: SuiteInfo = {
+    name: '',
+    id: '',
+    fullName: [],
+    tests: [],
+    testCounts: {
+      total: 0
+    }
+  };
+  const { suiteReport, moduleId } = qm;
+  if (typeof suiteReport !== 'undefined') {
+    result.id = '' + moduleId;
+    result.name = suiteReport.name;
+    result.fullName = suiteReport.fullName;
+  }
+  return result;
+}
+
 function getSelectedTestIds(
   qUnit: QUnit,
-  moduleFilter: PredicateObject<TestModule>
+  moduleFilter: (s: SuiteInfo) => boolean
 ) {
-  const mods = getAllModuleData(moduleFilter, { QUnit: qUnit });
+  const mods = getAllModuleData(
+    qmod => moduleFilter(qUnitModuleToSuiteInfo(qmod)),
+    {
+      QUnit: qUnit
+    }
+  );
   const moduleTests = mods
     .map(m => m.tests)
     .reduce((testarr, modTests) => testarr.concat(modTests), []);
@@ -138,47 +163,49 @@ class QUnitTestServer extends Server {
    */
   private async setupEventListeners() {
     const conn = this.conn;
+    let assertionCache: {
+      [k: string]: { [k: string]: QUnit.LogDetails[] };
+    } = {};
     this.qUnit.done(details => {
-      conn.sendTestData({
-        event: 'done',
-        details,
-        suites: serializableQunitModules(this.qUnit)
-      });
+      // TODO: assertions
+      conn.sendTestData(
+        normalizeRunEndEvent(this.qUnit, details, assertionCache)
+      );
     });
     this.qUnit.begin(details => {
-      conn.sendTestData({
-        event: 'begin',
-        details,
-        suites: serializableQunitModules(this.qUnit)
-      });
+      assertionCache = {}; // reset
+      conn.sendTestData(normalizeRunStartEvent(this.qUnit, details));
     });
     this.qUnit.moduleStart(details => {
-      conn.sendTestData({
-        event: 'moduleStart',
-        details,
-        suites: serializableQunitModules(this.qUnit)
-      });
+      assertionCache[details.name] = {}; // set up assertion cache for module
+      conn.sendTestData(normalizeSuiteStartEvent(this.qUnit, details));
     });
     this.qUnit.moduleDone(details => {
-      conn.sendTestData({
-        event: 'moduleDone',
-        details,
-        suites: serializableQunitModules(this.qUnit)
-      });
+      // TODO: assertions
+      conn.sendTestData(
+        normalizeSuiteEndEvent(
+          this.qUnit,
+          details,
+          assertionCache[details.name]
+        )
+      );
     });
     this.qUnit.testStart(details => {
-      conn.sendTestData({
-        event: 'testStart',
-        details,
-        suites: serializableQunitModules(this.qUnit)
-      });
+      assertionCache[details.module][details.name] = []; // set up assertion cache for test
+      conn.sendTestData(normalizeTestStartEvent(this.qUnit, details));
     });
     this.qUnit.testDone(details => {
-      conn.sendTestData({
-        event: 'testDone',
-        details,
-        suites: serializableQunitModules(this.qUnit)
-      });
+      // TODO: assertions
+      conn.sendTestData(
+        normalizeTestEndEvent(
+          this.qUnit,
+          details,
+          assertionCache[details.name][details.name]
+        )
+      );
+    });
+    this.qUnit.log(details => {
+      assertionCache[details.module][details.name].push(details);
     });
   }
 }
