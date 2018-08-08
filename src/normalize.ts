@@ -144,10 +144,10 @@ function suiteInfoToSuiteStart(
 }
 function suiteInfoToSuiteEnd(
   mod: PrivateQModInfo,
-  assertions: { [k: string]: QUnit.LogDetails[] | undefined }
+  assertions?: { [k: string]: QUnit.LogDetails[] | undefined }
 ): JSReporters.SuiteEnd & { id?: string } {
   const tests = mod.suiteReport.tests.map(rawTest => {
-    const rawTestAssertions = assertions[rawTest.name];
+    const rawTestAssertions = assertions ? assertions[rawTest.name] : [];
     const testAssertions: QUnit.LogDetails[] =
       typeof rawTestAssertions !== 'undefined'
         ? rawTestAssertions
@@ -250,7 +250,7 @@ export function normalizeSuiteStartEvent(
 export function normalizeSuiteEndEvent(
   qUnit: Pick<QUnit, 'config'>,
   evt: QUnit.ModuleDoneDetails,
-  assertions: { [k: string]: QUnit.LogDetails[] }
+  assertions: { [k: string]: QUnit.LogDetails[] | undefined }
 ): SuiteEndEvent {
   const mods = moduleInfoByName(qUnit, evt.name);
   return {
