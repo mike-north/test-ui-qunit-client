@@ -15,7 +15,7 @@ npm install @test-ui/qunit
 
 ### Client-Side
 ```ts
-import { IFrameConnectionClient  from '@test-ui/core';
+import { IFrameConnectionClient } from '@test-ui/core';
 import { QUnitTestClient } from '@test-ui/qunit';
 
 // Set the client up
