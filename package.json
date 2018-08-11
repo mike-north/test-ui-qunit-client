@@ -24,7 +24,7 @@
     "travis-deploy-once": "travis-deploy-once",
     "semantic-release": "semantic-release"
   },
-  "license": "MIT",
+  "license": "BSD-2-Clause",
   "devDependencies": {
     "@types/qunit": "^2.0.31",
     "ember-cli": "^3.1.4",
