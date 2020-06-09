@@ -1228,10 +1228,10 @@
   resolved "https://registry.yarnpkg.com/@types/parse-json/-/parse-json-4.0.0.tgz#2f8bb441434d163b35fb8ffdccd7138927ffb8c0"
   integrity sha512-//oorEZjL6sbPcKUaCdIGlIUeH26mgzimjBB77G6XRgnDl/L5wOnpyBGRe/Mmf5CVW3PwEBE1NjiMZ/ssFh4wA==
 
-"@types/qunit@2.5.2":
-  version "2.5.2"
-  resolved "https://registry.yarnpkg.com/@types/qunit/-/qunit-2.5.2.tgz#8b1c3fa33017148032c58a6530f66be3239edef9"
-  integrity sha512-bK5HuVLlE0S0stmSHbanLdiB8hBzhdW0LXR8bU/1N+RNW5sbgY+0+YcTlVADyZXFtNgt25ccm9iVpNJheLdbnA==
+"@types/qunit@2.5.4":
+  version "2.5.4"
+  resolved "https://registry.yarnpkg.com/@types/qunit/-/qunit-2.5.4.tgz#0518940acc6013259a8619a1ec34ce0e4ff8d1c4"
+  integrity sha512-VHi2lEd4/zp8OOouf43JXGJJ5ZxHvdLL1dU0Yakp6Iy73SjpuXl7yjwAwmh1qhTv8krDgHteSwaySr++uXX9YQ==
 
 "@types/retry@^0.12.0":
   version "0.12.0"
